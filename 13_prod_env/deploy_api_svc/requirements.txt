@@ -1,0 +1,25 @@
+# @Version   : 1.0
+# @Author    : HanSir
+# @File      : requirements.txt
+# @Time      : 2026/6/1 10:00
+# @Desc      : LangGraph API 服务的 Python 依赖
+
+# ========== 1. LangGraph 核心依赖 ===========
+langgraph>=1.2.2          # LangGraph 图编排框架
+langchain>=0.3.0          # LangChain 核心库
+
+# ========== 2. Web 框架依赖 ===========
+fastapi>=0.115.0          # Web 框架
+uvicorn[standard]>=0.32.0 # ASGI 服务器
+sse-starlette>=2.0.0      # SSE 流式输出支持
+
+# ========== 3. LangServe 部署依赖（可选）==========
+# langserve>=0.3.0        # LangServe 部署工具
+# sse-starlette>=2.0.0    # SSE 支持
+
+# ========== 4. 数据验证依赖 ===========
+pydantic>=2.0.0           # 数据模型验证
+
+# ========== 5. 工具库 ===========
+python-dotenv>=1.0.0      # 环境变量管理
+httpx>=0.27.0             # HTTP 客户端

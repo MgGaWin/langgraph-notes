@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Data
+data/chat_histories/*.json
+data/langgraph_app.log
+
+# Checkpoint databases
+*.db
+*.sqlite
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Verification logs
+__verify_logs/
+__verify_summary.json
+
+# Video outputs
+*.mp4
+out/
+
+# Don't ignore docs
+!docs/
