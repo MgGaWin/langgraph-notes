@@ -1,0 +1,27 @@
+name: ✨ 功能请求
+description: "有新功能想法？欢迎提出建议！"
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 相关痛点
+      description: 你想解决什么问题？当前有什么不方便的地方？
+      placeholder: "例如：我希望学习某个章节时能看到更多示例..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 期望方案
+      description: 你希望如何实现这个功能？
+      placeholder: "建议添加一个关于 XXX 的实战案例..."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 替代方案
+      description: 有没有其他可以接受的解决方式？
+    validations:
+      required: false
