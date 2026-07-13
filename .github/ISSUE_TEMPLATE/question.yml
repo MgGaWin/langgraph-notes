@@ -1,0 +1,27 @@
+name: ❓ 学习提问
+description: "学习中遇到困惑？先查讨论区，再提问题"
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 你的问题
+      description: 尽量描述清楚你想了解的内容
+      placeholder: "例如：State 和 Store 的区别是什么？..."
+    validations:
+      required: true
+  - type: input
+    id: section
+    attributes:
+      label: 相关章节 / 目录
+      description: "这个问题对应哪个章节或目录？"
+      placeholder: "例如：02_core_concepts/01_state/"
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: 已尝试的内容
+      description: 你已经看过哪些资料或尝试过什么？
+    validations:
+      required: false
