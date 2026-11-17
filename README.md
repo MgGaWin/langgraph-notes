@@ -2,19 +2,33 @@
 
 LangGraphLearn 是一套渐进式 LangGraph 学习项目，目标是把读者从“能跑第一个图”带到“能在工作中交付可恢复、可测试、可观测的 Agent 工作流”。
 
-配套长文档：
+配套长文档：[LangGraph 权威指南](docs/LangGraph权威指南.md)。
 
-```text
-D:\Obsidian\Obsidian库\Claw_database\AI人工智能\LangGraph权威指南.md
-```
+新版入口：[2026-11 升级指南](docs/2026-11-17版本升级指南.md)、[前沿能力课程](14_latest_features/README.md)。
 
 ## 环境准备
 
-推荐 Python 3.10+，优先使用虚拟环境。
+要求 Python 3.11+。2026-11-17 核验基线：LangGraph 1.2.22、LangChain 1.5.0、Core 1.8.1。本机使用 Python 3.14.3。
 
 ```bash
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 ```
+
+在项目根目录运行无需密钥的新版示例和验证：
+
+```powershell
+python scripts/verify_environment.py
+python -m pip check
+python -m pytest
+python -m 14_latest_features.1_typed_results
+python -m 05_streaming.4_stream_tokens
+python -m 12_integrations.4_mcp_client
+```
+
+已有 `03_persistence` 等课程可继续使用。新版 `05_streaming/3_*` 至 `7_*` 和 MCP 课程默认使用本地模型或进程内服务，支持不配置密钥学习。MCP、DeltaChannel、v3 事件流仍为 beta。
+
+升级快照及安装报告在 `docs/upgrades/`；本机 Windows/Python 3.14 的全量锁定清单为 `requirements-lock.txt`。Postgres/Redis 等外部服务依赖见 `requirements-integrations.txt`。
 
 在项目根目录创建或更新 `.env`：
 
@@ -65,6 +79,7 @@ LongCat / Meituan 测试接口使用 OpenAI 兼容方式接入，对应变量为
 | 10 | `08_practical_cases/` | 完成聊天、RAG、研究助手、客服、数据分析等业务案例 |
 | 11 | `09_testing/`、`10_debugging/`、`11_performance/` | 达到工作交付要求 |
 | 12 | `13_prod_env/` | 学习 API 部署、日志、监控、熔断和服务化 |
+| 13 | `14_latest_features/` | v2 类型化结果、超时恢复、优雅停止、DeltaChannel、类型化审批、SQLite 重启恢复、Functional API |
 
 ## 工作达标标准
 

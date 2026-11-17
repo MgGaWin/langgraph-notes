@@ -22,6 +22,9 @@
 - `11_performance/` — 性能：缓存、并行、内存优化、连接池
 - `12_integrations/` — 集成：LangSmith、MCP、数据库、文件系统
 - `13_prod_env/` — 生产环境：部署、错误处理、日志、监控
+- `14_latest_features/` — 新版能力：v2 输出、节点超时、RunControl、DeltaChannel、类型化中断与 Functional API
+- `release_support/` — 无密钥模型和真实 MCP 本地演示组件
+- `tests/` — 无外部服务的新版 API 回归测试
 
 ## LLM 提供商
 - DeepSeek（原生提供商）
@@ -40,8 +43,9 @@
 - 应用日志：`data/langgraph_app.log`
 
 ## 版本
-- LangGraph: v1.2.2
-- Python: >=3.10
+- LangGraph: v1.2.22
+- LangChain: v1.5.0 / Core: v1.8.1
+- Python: >=3.11（2026-11-17 核验）
 
 
 

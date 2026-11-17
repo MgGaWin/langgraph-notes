@@ -1,14 +1,14 @@
-﻿# LangGraph 权威指南（v1.4）
+﻿# LangGraph 权威指南（v1.5）
 
-> **版本**：v1.4
+> **版本**：v1.5
 >
 > **目标读者**：具备 Python 和 LangChain 基础的开发者，从零基础到精通
 >
-> **适配环境**：Python 3.10+ / LangGraph v1.2.2 / LangChain v1.2+ / DeepSeek-chat / LongCat-2.0（OpenAI 兼容）
+> **适配环境**：Python 3.11+ / LangGraph 1.2.22 / LangChain 1.5.0 / Core 1.8.1
 >
 > **配套代码**：`D:\idea\python\LangGraphLearn\`
 >
-> **最后更新**：2026-07-11
+> **最后更新**：2026-11-17；[新版课程与迁移指南](2026-11-17版本升级指南.md)
 
 ---
 
@@ -81,31 +81,28 @@
 
 #### 1.1 Python 环境要求
 
-LangGraph v1.2.2 要求：
+本项目的 LangGraph + LangChain 联合基线要求：
 
-- **Python 版本**：3.10 或更高
-- **推荐**：Python 3.11（最稳定）
+- **Python 版本**：3.11 或更高
+- **本机验证**：Python 3.14.3
 
 ```bash
 python --version
 ```
 
-为什么要求 3.10+？因为 LangGraph 大量使用了 Python 3.10 引入的 `match-case` 语法糖和更精确的类型注解系统。如果你用 3.9 或更低版本，会遇到语法错误。
+LangGraph 1.2 单包仍支持 Python 3.10，但 LangChain 1.5 / Core 1.8 要求 Python 3.11+，所以完整项目遵循后者。准确边界以包的 Requires-Python 元数据为准。
 
 #### 1.2 安装 LangGraph
 
 ```bash
-# 核心包
-pip install langgraph>=1.2.0
+# 在项目根目录安装核验后的依赖组合
+python -m pip install -r requirements-dev.txt
+python scripts/verify_environment.py
+python -m pip check
+python -m pytest
 
-# 检查点存储（按需安装）
-pip install langgraph-checkpoint>=2.0.0
-pip install langgraph-checkpoint-sqlite>=2.0.0  # SQLite 持久化
-pip install langgraph-checkpoint-redis>=2.0.0   # Redis 持久化（生产环境）
-
-# LangChain 集成
-pip install langchain>=1.2.0
-pip install langchain-deepseek>=1.0.0  # DeepSeek 模型
+# Postgres/Redis 等外部服务集成按需额外安装
+python -m pip install -r requirements-integrations.txt
 ```
 
 > ⚠️ **常见安装问题**：
@@ -634,7 +631,8 @@ asyncio.run(main())
 #### 4.4 节点缓存
 
 ```python
-from langgraph.cache import InMemoryCache, CachePolicy
+from langgraph.cache.memory import InMemoryCache
+from langgraph.types import CachePolicy
 
 # 添加带缓存的节点
 builder.add_node(
@@ -1027,11 +1025,13 @@ for chunk in graph.stream(state, stream_mode="updates"):
 #### 9.2 Token 级流式输出
 
 ```python
-for event in graph.stream_events(state, version="v3"):
-    if event["event"] == "on_chat_model_stream":
-        token = event["data"]["chunk"].content
+stream = graph.stream_events(state, version="v3")
+for message in stream.messages:
+    for token in message.text:
         print(token, end="", flush=True)
 ```
+
+v3 当前仍为 beta，原始事件使用 `seq/method/params`；旧 `event/data` 字典属于 `astream_events(version="v2")`。同步最终状态使用 `stream.output`；当前安装版异步使用 `await stream.output()`。同步读取多个投影可用 `stream.interleave("values", "messages")`。
 
 **为什么要 token 级流式？** 因为用户体验！如果 AI 生成 200 个字需要 3 秒，一次性显示让用户等 3 秒；token 级流式让用户看到文字一个一个蹦出来，感觉响应更快。就像打字机效果——内容一样，但体验完全不同。
 
@@ -1046,12 +1046,14 @@ app = FastAPI()
 @app.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
     async def generate():
-        async for event in graph.astream_events(
+        import json
+        stream = await graph.astream_events(
             {"messages": [("user", request.message)]},
             version="v3"
-        ):
-            if event["event"] == "on_chat_model_stream":
-                yield event["data"]["chunk"].content
+        )
+        async for message in stream.messages:
+            async for token in message.text:
+                yield "data: " + json.dumps({"token": token}, ensure_ascii=False) + "\n\n"
     
     return StreamingResponse(generate(), media_type="text/event-stream")
 ```
@@ -1257,7 +1259,8 @@ def test_counter_node():
 #### 14.1 节点缓存
 
 ```python
-from langgraph.cache import InMemoryCache, CachePolicy
+from langgraph.cache.memory import InMemoryCache
+from langgraph.types import CachePolicy
 
 builder.add_node(
     "expensive_node",
@@ -1512,7 +1515,7 @@ class ChatRequest(BaseModel):
 @app.post("/chat")
 async def chat(request: ChatRequest):
     """同步调用"""
-    result = graph.invoke(
+    result = await graph.ainvoke(
         {"messages": [("user", request.message)]},
         {"configurable": {"thread_id": request.session_id}}
     )
@@ -1522,12 +1525,15 @@ async def chat(request: ChatRequest):
 async def chat_stream(request: ChatRequest):
     """流式调用"""
     async def generate():
-        async for event in graph.astream_events(
+        import json
+        stream = await graph.astream_events(
             {"messages": [("user", request.message)]},
+            {"configurable": {"thread_id": request.session_id}},
             version="v3"
-        ):
-            if event["event"] == "on_chat_model_stream":
-                yield event["data"]["chunk"].content
+        )
+        async for message in stream.messages:
+            async for token in message.text:
+                yield "data: " + json.dumps({"token": token}, ensure_ascii=False) + "\n\n"
     
     return StreamingResponse(generate(), media_type="text/event-stream")
 
@@ -2423,11 +2429,33 @@ langgraph_app/
 
 ---
 
+## 第八篇：2026-11 运行时能力更新
+
+### 第39章：从课程图到可恢复的新版运行时
+
+框架版本、API 迁移、兼容边界与官方出处集中在 [2026-11 升级指南](2026-11-17版本升级指南.md)。可运行课程位于 `14_latest_features/`，默认无需密钥或外部数据库。
+
+| 示例 | 关键问题 |
+|---|---|
+| `1_typed_results.py` | v2 的 GraphOutput 与类型化流信封如何读取？ |
+| `2_timeout_and_recovery.py` | 异步节点如何组合 TimeoutPolicy、重试和 NodeError 恢复？ |
+| `3_drain_and_resume.py` | 如何在超步边界暂停，并从同一线程继续？ |
+| `4_delta_channel.py` | 一批增量如何归并、保存和重建？ |
+| `5_typed_interrupt.py` | 如何声明审批 Schema，校验回答并按中断 ID 恢复？ |
+| `6_sqlite_restart.py` | saver 连接关闭后，重建图是否仍能恢复审批？ |
+| `7_functional_api.py` | entrypoint/task 如何表达可恢复的 Python 函数流程？ |
+
+新版流式示例采用类型化投影，异步最终输出使用当前安装版的 `await stream.output()`。MCP 示例升级为真实 FastMCP/MCPAdapter/ToolNode 调用，支持本地进程内与 stdio 方式。测试使用独立数据库，不修改旧线程或历史检查点。
+
+DeltaChannel、v3 和 MCP 仍包含 beta API；已有线程变更 channel 表示须单独迁移。RunControl 在超步边界停止，不会撤销正在执行的外部操作；数据库与工具副作用仍需服务端幂等。
+
+---
+
 > **作者**：HanSir
 >
-> **版本**：v1.4（适配 LangGraph v1.2.2）
+> **版本**：v1.5（适配 LangGraph 1.2.22 / LangChain 1.5.0）
 >
-> **最后更新**：2026-07-11
+> **最后更新**：2026-11-17
 >
 > **配套代码**：`D:\idea\python\LangGraphLearn\`
 

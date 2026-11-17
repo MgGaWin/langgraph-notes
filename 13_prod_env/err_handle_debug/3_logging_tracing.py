@@ -102,7 +102,7 @@ logger = setup_logging()
 
 # ========== 2. 自定义回调处理器 ===========
 
-from langchain.callbacks import BaseCallbackHandler
+from langchain_core.callbacks import BaseCallbackHandler
 
 class LoggingCallbackHandler(BaseCallbackHandler):
     """

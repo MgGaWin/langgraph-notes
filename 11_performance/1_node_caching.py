@@ -40,7 +40,8 @@ import operator
 
 from langchain.messages import HumanMessage, AIMessage, AnyMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph.cache import InMemoryCache, CachePolicy
+from langgraph.cache.memory import InMemoryCache
+from langgraph.types import CachePolicy
 
 # 导入统一的 LLM 模型
 from init_llm import deepseek_llm

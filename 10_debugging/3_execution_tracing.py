@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from langgraph.graph import StateGraph, START, END
 
 # 导入 LangChain 回调基类
-from langchain.callbacks.base import BaseCallbackHandler
+from langchain_core.callbacks import BaseCallbackHandler
 
 # 导入类型注解支持
 from typing import List, Any, Dict

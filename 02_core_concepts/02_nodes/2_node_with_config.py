@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 # RunnableConfig 是 LangChain 的标准运行时配置类型
-from langchain.runnables import RunnableConfig
+from langchain_core.runnables import RunnableConfig
 
 # ========== 2. 定义状态结构 ==========
 class AgentState(TypedDict):

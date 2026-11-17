@@ -30,7 +30,8 @@ from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 # InMemoryCache: 内存缓存后端
 # CachePolicy: 缓存策略配置
-from langgraph.cache import InMemoryCache, CachePolicy
+from langgraph.cache.memory import InMemoryCache
+from langgraph.types import CachePolicy
 
 # ========== 2. 定义状态结构 ==========
 class AgentState(TypedDict):

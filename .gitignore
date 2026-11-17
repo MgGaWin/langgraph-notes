@@ -5,6 +5,8 @@ __pycache__/
 *.so
 .Python
 .venv/
+.pytest_cache/
+.ruff_cache/
 venv/
 env/
 
@@ -45,3 +47,7 @@ out/
 
 # Don't ignore docs
 !docs/
+
+# Local attachments and machine-specific installer reports
+.codex-remote-attachments/
+docs/upgrades/*-install.json
